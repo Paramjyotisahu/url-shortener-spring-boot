@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            margin-bottom: 10px;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .result-value {
+            color: #333;
+            word-break: break-all;
+        }
+        
+        .short-url {
+            font-size: 18px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-error {
+            background-color: #fee;
+            border-left: 4px solid #e74c3c;
+            color: #c33;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 URL Shortener</h1>
+        
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        <div th:if="${param.error}" class="alert alert-error" th:text="${param.error[0]}"></div>
+        
+        <form th:action="@{/shorten}" method="post" th:object="${request}">
+            <div class="form-group">
+                <label for="url">Enter URL to shorten:</label>
+                <input type="url" id="url" name="url" th:field="*{url}" placeholder="https://example.com">
+                <div class="error" th:if="${#fields.hasErrors('url')}" th:errors="*{url}"></div>
+            </div>
+            <button type="submit">Shorten URL</button>
+        </form>
+        
+        <div th:if="${response}" class="result">
+            <h3>✅ Short URL Created!</h3>
+            <div class="result-item">
+                <span class="result-label">Short Code:</span>
+                <span class="result-value" th:text="${response.shortCode}"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Short URL:</span>
+                <a th:href="${response.shortURL}" th:text="${response.shortURL}" class="short-url" target="_blank"></a>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Original URL:</span>
+                <span class="result-value" th:text="${response.originalURL}"></span>
+            </div>
+            <div class="result-item" th:if="${response.createdAt}">
+                <span class="result-label">Created At:</span>
+                <span class="result-value" th:text="${#temporals.format(response.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+            </div>
+            <div class="result-item" th:if="${response.expiresAt}">
+                <span class="result-label">Expires At:</span>
+                <span class="result-value" th:text="${#temporals.format(response.expiresAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
